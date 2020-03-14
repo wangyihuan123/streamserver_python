@@ -1,5 +1,8 @@
 import socket
 from threading import Thread
+import base64
+import numpy as np
+import cv2
 
 # server
 SERVER_IP = "0.0.0.0"
@@ -9,6 +12,7 @@ MAX_NUM_CONNECTIONS = 20
 IMAGE_HEIGHT = 480
 IMAGE_WIDTH = 640
 COLOR_PIXEL = 3  # RGB
+IMAGE_SIZE =  IMAGE_WIDTH * IMAGE_HEIGHT * COLOR_PIXEL
 
 class ConnectionPool(Thread):
 
@@ -17,19 +21,30 @@ class ConnectionPool(Thread):
         self.ip = ip_
         self.port = port_
         self.conn = conn_
+        self.rfile = self.conn.makefile('rb')
         print("[+] New server socket thread started for " + self.ip + ":" + str(self.port))
 
     def run(self):
         count = 0
+        stream_bytes = b''
+
         try:
             while True:
-                data = self.conn.recv(IMAGE_HEIGHT * IMAGE_WIDTH * COLOR_PIXEL)
-                if not data:
-                    break
-                print(count, len(data))
-                count += 1
+                # https://stackoverflow.com/questions/51921631/how-to-send-and-receive-webcam-stream-using-tcp-sockets-in-python
+                stream_bytes += self.rfile.read(1024)
+                while len(stream_bytes) >= IMAGE_SIZE:
+                    image = np.frombuffer(stream_bytes[:IMAGE_SIZE], dtype="B")
+                    stream_bytes = stream_bytes[IMAGE_SIZE:]
+                    print(image.shape, len(stream_bytes))
+                    frame = np.frombuffer(
+                        image, dtype=np.uint8).reshape(IMAGE_HEIGHT, IMAGE_WIDTH, 3)
+
+                    print("frame", frame.shape)
+                    cv2.imwrite("test.jpg", frame)
+
+
         except Exception, e:
-            print "Connection lost with " + self.ip + ":" + str(self.port) + "\r\n[Error] " + str(e.message)
+            print("Connection lost with " + self.ip + ":" + str(self.port) + "\r\n[Error] " + str(e.message))
         self.conn.close()
 
 
