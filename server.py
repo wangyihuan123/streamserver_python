@@ -14,6 +14,10 @@ IMAGE_WIDTH = 640
 COLOR_PIXEL = 3  # RGB
 IMAGE_SIZE =  IMAGE_WIDTH * IMAGE_HEIGHT * COLOR_PIXEL
 
+# Define the codec and create VideoWriter object
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+out = cv2.VideoWriter('output.avi',fourcc, 20.0, (640,480))  # 20 frame/per second
+
 class ConnectionPool(Thread):
 
     def __init__(self, ip_, port_, conn_):
@@ -39,9 +43,8 @@ class ConnectionPool(Thread):
                     frame = np.frombuffer(
                         image, dtype=np.uint8).reshape(IMAGE_HEIGHT, IMAGE_WIDTH, 3)
 
-                    print("frame", frame.shape)
-                    cv2.imwrite("test.jpg", frame)
-
+                    # write the  frame to video
+                    out.write(frame)
 
         except Exception, e:
             print("Connection lost with " + self.ip + ":" + str(self.port) + "\r\n[Error] " + str(e.message))
