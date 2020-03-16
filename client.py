@@ -27,13 +27,8 @@ if __name__ == '__main__':
             byteImage = frame.tobytes()
             conn.write(byteImage)
 
-            # todo: sendall or makefile->write?
-            # socket_client.sendall(byteImage)
-
-
             count += 1
             print('Frame: ', count, 'Size:', len(byteImage))
-            time.sleep(10)
 
         except Exception as e:
             print("[Error] " + str(e))
