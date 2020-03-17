@@ -36,5 +36,5 @@ class OpencvImageController(ThreadedController):
                 self.signal_start_capture()
 
     def __del__(self):
-        super(OpencvImageController, self).__del__()
+        super().__del__()
         cv2.destroyAllWindows()
