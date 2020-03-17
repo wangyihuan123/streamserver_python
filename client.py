@@ -27,9 +27,9 @@ if __name__ == '__main__':
             byteImage = frame.tobytes()
             conn.write(byteImage)
 
-            count += 1
-            print('Frame: ', count, 'Size:', len(byteImage))
-            time.sleep(0.5)  # for easy debug
+            # count += 1
+            # print('Frame: ', count, 'Size:', len(byteImage))
+            # time.sleep(0.5)  # for easy debug
 
         except Exception as e:
             print("[Error] " + str(e))

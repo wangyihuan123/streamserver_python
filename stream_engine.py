@@ -8,6 +8,9 @@ import signal
 import termios
 import queue
 import weakref
+from datetime import datetime
+import cv2
+import uuid
 
 # Socket server configuration
 SERVER_IP = "0.0.0.0"
@@ -29,6 +32,9 @@ class StreamEngine(threading.Thread):
         threading.Thread.__init__(self)
         self._controllers = []
         self._command_queue = queue.Queue(10)
+        self.session_id = str(uuid.uuid4())
+        self.recording = False
+        self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
 
     def __del__(self):
         # Unplug any registered controllers
@@ -61,6 +67,18 @@ class StreamEngine(threading.Thread):
             self._command_queue.get(block=False)
 
         self._command_queue.put({'cmd': command, 'args': args})
+
+    def generateRecord(self):
+        print("start generateRecord")
+        now = datetime.now()  # current date and time
+
+        date_time = now.strftime("%m_%b_%H_%M_%S")
+        print("date_time", datetime)
+        # Define the codec and create VideoWriter object
+        record_name_ = self.session_id + "_video_" + date_time + ".avi"
+        print("video name {}".format(record_name_))
+        self.out = cv2.VideoWriter(record_name_, self.fourcc, 20.0, (640, 480))  # 20 frame/per second
+        print("generated video")
 
     # ========================================================================================
     # In each of the following notify methods iterate over copy of <_controllers> so in case
@@ -169,6 +187,11 @@ class StreamEngine(threading.Thread):
 
                         self._notify_controllers_of_update_framedata(frame)
 
+                        # write the frame to video
+                        if self.recording:
+                            self.out.write(frame)
+                            print("recording")
+
 
                     while not self._command_queue.empty():
                         cmd_obj = self._command_queue.get(block=False)
@@ -176,6 +199,13 @@ class StreamEngine(threading.Thread):
 
                         if cmd == 1:
                             print("get cmd: start_capture")
+                        elif cmd == 3:
+                            print("get cmd: start_record!!!!")
+                            self.generateRecord()
+                            self.recording = True
+                        elif cmd == 4:
+                            self.recording = False
+
             except:
                 print("Unexpected error:", sys.exc_info()[0])
 

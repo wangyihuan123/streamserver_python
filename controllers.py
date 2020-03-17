@@ -8,6 +8,9 @@ class Controller(object):
     # Commands passed from controllers to engine
 
     CMD_START_CAPTURE = 1
+    CMD_STOP_CAPTURE = 2
+    CMD_START_RECORD = 3
+    CMD_STOP_RECORD = 4
 
     def __init__(self):
         self._engine = None
@@ -35,6 +38,20 @@ class Controller(object):
         if self._engine is not None:
             try:
                 self._engine.post_command(Controller.CMD_START_CAPTURE)
+            except ReferenceError:
+                self._engine = None
+
+    def signal_start_record(self):
+        if self._engine is not None:
+            try:
+                self._engine.post_command(Controller.CMD_START_RECORD)
+            except ReferenceError:
+                self._engine = None
+
+    def signal_stop_record(self):
+        if self._engine is not None:
+            try:
+                self._engine.post_command(Controller.CMD_STOP_RECORD)
             except ReferenceError:
                 self._engine = None
 
