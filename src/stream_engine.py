@@ -73,7 +73,7 @@ class StreamEngine(threading.Thread):
         print("start generateRecord")
         now = datetime.now()  # current date and time
 
-        date_time = now.strftime("%m_%b_%H_%M_%S")
+        date_time = now.strftime("%d_%b_%H_%M_%S")
         print("date_time", datetime)
         # Define the codec and create VideoWriter object
         record_name_ = self.session_id + "_video_" + date_time + ".avi"
