@@ -28,6 +28,7 @@ class StreamEngine(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self._controllers = []
+        self._command_queue = queue.Queue(10)
 
     def __del__(self):
         # Unplug any registered controllers
@@ -53,6 +54,13 @@ class StreamEngine(threading.Thread):
         if p in self._controllers:
             self._controllers.remove(p)
 
+
+    def post_command(self, command, args=None):
+        # If queue full discard oldest command
+        if self._command_queue.full():
+            self._command_queue.get(block=False)
+
+        self._command_queue.put({'cmd': command, 'args': args})
 
     # ========================================================================================
     # In each of the following notify methods iterate over copy of <_controllers> so in case
@@ -161,6 +169,13 @@ class StreamEngine(threading.Thread):
 
                         self._notify_controllers_of_update_framedata(frame)
 
+
+                    while not self._command_queue.empty():
+                        cmd_obj = self._command_queue.get(block=False)
+                        cmd = cmd_obj['cmd']
+
+                        if cmd == 1:
+                            print("get cmd: start_capture")
             except:
                 print("Unexpected error:", sys.exc_info()[0])
 

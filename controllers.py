@@ -7,7 +7,7 @@ class Controller(object):
 
     # Commands passed from controllers to engine
 
-    CMD_START = 1
+    CMD_START_CAPTURE = 1
 
     def __init__(self):
         self._engine = None

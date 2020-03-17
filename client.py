@@ -29,7 +29,7 @@ if __name__ == '__main__':
 
             count += 1
             print('Frame: ', count, 'Size:', len(byteImage))
-            time.sleep(3)  # for easy debug
+            # time.sleep(1)  # for easy debug
 
         except Exception as e:
             print("[Error] " + str(e))

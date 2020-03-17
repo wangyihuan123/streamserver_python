@@ -32,4 +32,9 @@ class OpencvImageController(ThreadedController):
             k = k & 0xFF
             if k == 32:  # SPACE
                 print("space from opencv controller")
+            elif k == ord('s'):
+                self.signal_start_capture()
 
+    def __del__(self):
+        super(OpencvImageController, self).__del__()
+        cv2.destroyAllWindows()
