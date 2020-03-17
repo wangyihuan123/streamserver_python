@@ -61,7 +61,7 @@ class StreamEngine(threading.Thread):
 
         for c in self._controllers[:]:
             try:
-                c.notify_start()
+                c.notify_start_controller_threads()
             except ReferenceError:
                 # Shouldn't happen as controllers deregister themselves upon destruction
                 self._controllers.remove(c)

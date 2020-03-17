@@ -29,8 +29,17 @@ class Controller(object):
         else:
             self._engine = None
 
+    # Calls made by controller to direct behaviour of engine
+
+    def signal_start_capture(self):
+        if self._engine is not None:
+            try:
+                self._engine.post_command(Controller.CMD_START_CAPTURE)
+            except ReferenceError:
+                self._engine = None
+
     # Callbacks invoked by engine
-    def notify_start(self):
+    def notify_start_controller_threads(self):
         pass
 
     # publish the frame data(image)
@@ -58,7 +67,7 @@ class ThreadedController(Controller):
         except:
             print('Unhandled exception')
 
-    def notify_start(self):
+    def notify_start_controller_threads(self):
         # Start worker thread on notification of engine start
         if not self._run_thread:
             self._run_thread = True
