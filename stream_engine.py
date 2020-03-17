@@ -11,6 +11,7 @@ import weakref
 from datetime import datetime
 import cv2
 import uuid
+from controllers import Controller
 
 # Socket server configuration
 SERVER_IP = "0.0.0.0"
@@ -197,13 +198,16 @@ class StreamEngine(threading.Thread):
                         cmd_obj = self._command_queue.get(block=False)
                         cmd = cmd_obj['cmd']
 
-                        if cmd == 1:
+                        if cmd == Controller.CMD_START_CAPTURE:
                             print("get cmd: start_capture")
-                        elif cmd == 3:
-                            print("get cmd: start_record!!!!")
+                        elif cmd == Controller.CMD_STOP_CAPTURE:
+                            print("get cmd: stop_capture")
+                        elif cmd == Controller.CMD_START_RECORD:
+                            print("get cmd: start_record")
                             self.generateRecord()
                             self.recording = True
-                        elif cmd == 4:
+                        elif cmd == Controller.CMD_STOP_RECORD:
+                            print("get cmd: stop_record")
                             self.recording = False
 
             except:

@@ -13,7 +13,8 @@ class OpencvImageController(ThreadedController):
         super().__init__()
 
         # cv2.namedWindow(WINDOW_NAME)
-        self._image_to_show = np.zeros((480, 640, 3), np.uint8)  # blank image
+        self.blank_image = np.zeros((480, 640, 3), np.uint8)
+        self._image_to_show = self.blank_image
 
     def notify_frame_data(self, image):
         self._image_to_show = image
@@ -24,7 +25,7 @@ class OpencvImageController(ThreadedController):
 
             if self._image_to_show is not None:
                 cv2.imshow(WINDOW_NAME, self._image_to_show)
-                # self._image_to_show = None
+                self._image_to_show = None  # todo:
 
             k = cv2.waitKey(1)
 
