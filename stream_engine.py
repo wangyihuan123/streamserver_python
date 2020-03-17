@@ -135,7 +135,7 @@ class StreamEngine(threading.Thread):
                     k = ord(k) & 0xFF
 
                     if k == 32:  # SPACE
-                        print("space -> start to run")
+                        print("space -> start to run stream engine")
                         return self.state_func__run
 
 
@@ -149,7 +149,7 @@ class StreamEngine(threading.Thread):
 
 
     def state_func__run(self):
-        print("start run")
+        print("start stream engine")
 
         socket_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         socket_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -198,10 +198,13 @@ class StreamEngine(threading.Thread):
                         cmd_obj = self._command_queue.get(block=False)
                         cmd = cmd_obj['cmd']
 
-                        if cmd == Controller.CMD_START_CAPTURE:
-                            print("get cmd: start_capture")
-                        elif cmd == Controller.CMD_STOP_CAPTURE:
-                            print("get cmd: stop_capture")
+                        if cmd == Controller.CMD_START_STREAM:
+                            print("get cmd: start_stream")
+                            print("Stream engine already started")
+                        elif cmd == Controller.CMD_STOP_STREAM:
+                            print("get cmd: stop_stream")
+                            socket_server.close()
+                            return self.state_func__idle
                         elif cmd == Controller.CMD_START_RECORD:
                             print("get cmd: start_record")
                             self.generateRecord()

@@ -7,8 +7,8 @@ class Controller(object):
 
     # Commands passed from controllers to engine
 
-    CMD_START_CAPTURE = 1
-    CMD_STOP_CAPTURE = 2
+    CMD_START_STREAM = 1
+    CMD_STOP_STREAM = 2
     CMD_START_RECORD = 3
     CMD_STOP_RECORD = 4
 
@@ -34,10 +34,17 @@ class Controller(object):
 
     # Calls made by controller to direct behaviour of engine
 
-    def signal_start_capture(self):
+    def signal_start_stream(self):
         if self._engine is not None:
             try:
-                self._engine.post_command(Controller.CMD_START_CAPTURE)
+                self._engine.post_command(Controller.CMD_START_STREAM)
+            except ReferenceError:
+                self._engine = None
+
+    def signal_stop_stream(self):
+        if self._engine is not None:
+            try:
+                self._engine.post_command(Controller.CMD_STOP_STREAM)
             except ReferenceError:
                 self._engine = None
 

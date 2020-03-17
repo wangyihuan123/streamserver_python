@@ -6,9 +6,6 @@ WINDOW_NAME = "DISPLAY"
 
 class OpencvImageController(ThreadedController):
 
-    CMD_SHUTDOWN = 0
-    CMD_START_CAPTURE = 1
-
     def __init__(self):
         super().__init__()
 
@@ -31,11 +28,17 @@ class OpencvImageController(ThreadedController):
 
             # Mask out all but the equivalent ASCII key code in the low byte
             k = k & 0xFF
-            if k == 32:  # SPACE
+            if k == 32:  # SPACE to start stream
                 print("space from opencv controller")
-            elif k == ord('s'):
-                self.signal_start_capture()
+                self.signal_start_stream()
+            elif k == ord('s'):  # stop
+                self.signal_stop_stream()
+            elif k == ord('r'):  # record
+                self.signal_start_record()
+            elif k == ord('e'):  # end
+                self.signal_stop_record()
 
-    def __del__(self):
+
+def __del__(self):
         super().__del__()
         cv2.destroyAllWindows()
