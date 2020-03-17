@@ -3,6 +3,8 @@ from threading import Thread
 import uuid
 import numpy as np
 import cv2
+from datetime import datetime
+
 
 # server
 SERVER_IP = "0.0.0.0"
@@ -26,12 +28,17 @@ class ConnectionPool(Thread):
         self.recording = False
         self.displaying = False
         self.blank_image = np.zeros((IMAGE_HEIGHT, IMAGE_WIDTH, 3), np.uint8)
+        self.session_id = str(uuid.uuid4())
         print("[+] New server socket thread started for " + self.ip + ":" + str(self.port))
 
     def generateRecord(self):
+
+        now = datetime.now() # current date and time
+        date_time = now.strftime("%m_%b_%H_%M_%S")
+
         # Define the codec and create VideoWriter object
         self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        record_name_ = "output_" + str(uuid.uuid4()) + ".avi"
+        record_name_ = self.session_id + "_video_" + date_time + ".avi"
         self.out = cv2.VideoWriter(record_name_, self.fourcc, 20.0, (640, 480))  # 20 frame/per second
 
     def run(self):
