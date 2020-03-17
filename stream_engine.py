@@ -6,6 +6,8 @@ import threading
 import time
 import signal
 import termios
+import queue
+import weakref
 
 # Socket server configuration
 SERVER_IP = "0.0.0.0"
@@ -25,7 +27,31 @@ class StreamEngine(threading.Thread):
 
     def __init__(self):
         threading.Thread.__init__(self)
+        self._controllers = []
 
+    # ========================================================================================
+    # Interface used by associated controllers
+
+    def register_controller(self, controller):
+
+        # Use weakref proxies between engine and controllers to avoid circular reference leading to undead objects
+        p = weakref.proxy(controller)
+        if p not in self._controllers:
+            self._controllers.append(p)
+            controller._set_engine(self)
+
+
+    # ========================================================================================
+    # In each of the following notify methods iterate over copy of <_controllers> so in case
+    # of encountering expired reference can remove it without invalidating iterator.
+    def _notify_controllers_of_start(self):
+
+        for c in self._controllers[:]:
+            try:
+                c.notify_start()
+            except ReferenceError:
+                # Shouldn't happen as controllers deregister themselves upon destruction
+                self._controllers.remove(c)
 
     # ==================================================================================================================
     # State machine state functions
@@ -85,6 +111,10 @@ class StreamEngine(threading.Thread):
         self.rfile = conn.makefile('rb')
 
 
+        # start the threads of controller here
+        # you can actually change the start places as you like
+        self._notify_controllers_of_start()
+
         image_num = 0
 
         while True:
@@ -97,13 +127,15 @@ class StreamEngine(threading.Thread):
 
                     stream_bytes += self.rfile.read(1024)
                     while len(stream_bytes) >= IMAGE_SIZE:
+
                         image = np.frombuffer(stream_bytes[:IMAGE_SIZE], dtype="B")
                         stream_bytes = stream_bytes[IMAGE_SIZE:]
+
+                        image_num += 1
                         print(image_num, image.shape, len(stream_bytes))
                         frame = np.frombuffer(
                             image, dtype=np.uint8).reshape(IMAGE_HEIGHT, IMAGE_WIDTH, 3)
 
-                        image_num += 1
             except:
                 print("Unexpected error:", sys.exc_info()[0])
 

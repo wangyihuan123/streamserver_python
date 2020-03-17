@@ -4,9 +4,9 @@ import signal
 import time
 from functools import partial
 from stream_engine import StreamEngine
+from opencv_image_controller import OpencvImageController
 
 def run_main_loop():
-
     try:
         while True:
             # currently nothing to do here but spin
@@ -15,8 +15,13 @@ def run_main_loop():
     except KeyboardInterrupt:
         pass
 
+
 def main():
     engine = StreamEngine()
+
+    opencv_image_controller = OpencvImageController()
+    if opencv_image_controller is not None:
+        engine.register_controller(opencv_image_controller)
 
     engine.start()
 
