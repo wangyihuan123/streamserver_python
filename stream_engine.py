@@ -29,9 +29,16 @@ class StreamEngine(threading.Thread):
         threading.Thread.__init__(self)
         self._controllers = []
 
+    def __del__(self):
+        # Unplug any registered controllers
+        for c in self._controllers:
+            try:
+                c._set_engine(None)
+            except ReferenceError:
+                pass
+
     # ========================================================================================
     # Interface used by associated controllers
-
     def register_controller(self, controller):
 
         # Use weakref proxies between engine and controllers to avoid circular reference leading to undead objects
@@ -39,6 +46,12 @@ class StreamEngine(threading.Thread):
         if p not in self._controllers:
             self._controllers.append(p)
             controller._set_engine(self)
+
+    def deregister_controller(self, controller):
+
+        p = weakref.proxy(controller)
+        if p in self._controllers:
+            self._controllers.remove(p)
 
 
     # ========================================================================================

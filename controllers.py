@@ -12,6 +12,15 @@ class Controller(object):
     def __init__(self):
         self._engine = None
 
+    def __del__(self):
+
+        if self._engine is not None:
+            # Unplug self from engine
+            try:
+                self._engine.deregister_controller(self)
+            except ReferenceError:
+                pass
+
     def _set_engine(self, engine):
 
         if engine is not None:
