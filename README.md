@@ -6,6 +6,14 @@
 2. Create a UI to control that server functionality which will be start/stop & record to file.
 
 
+====================================
+**ver 0.0.2**
+re-write the project in python
+
+Todo:
+refactoring, comments and testing
+
+====================================
 **ver 0.0.1**
 
 Implemented basic functionalities , but has many limitations:
