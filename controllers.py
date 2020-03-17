@@ -33,6 +33,10 @@ class Controller(object):
     def notify_start(self):
         pass
 
+    # publish the frame data(image)
+    def notify_frame_data(self, image):
+        pass
+
 
 class ThreadedController(Controller):
 

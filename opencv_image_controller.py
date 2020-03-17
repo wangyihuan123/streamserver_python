@@ -15,6 +15,9 @@ class OpencvImageController(ThreadedController):
         # cv2.namedWindow(WINDOW_NAME)
         self._image_to_show = np.zeros((480, 640, 3), np.uint8)  # blank image
 
+    def notify_frame_data(self, image):
+        self._image_to_show = image
+
     def run(self):
         print("run opencv controller")
         while True:

@@ -66,6 +66,16 @@ class StreamEngine(threading.Thread):
                 # Shouldn't happen as controllers deregister themselves upon destruction
                 self._controllers.remove(c)
 
+
+    def _notify_controllers_of_update_framedata(self, image):
+
+        for c in self._controllers[:]:
+            try:
+                c.notify_frame_data(image)
+            except ReferenceError:
+                # Shouldn't happen as controllers deregister themselves upon destruction
+                self._controllers.remove(c)
+
     # ==================================================================================================================
     # State machine state functions
 
@@ -148,6 +158,8 @@ class StreamEngine(threading.Thread):
                         print(image_num, image.shape, len(stream_bytes))
                         frame = np.frombuffer(
                             image, dtype=np.uint8).reshape(IMAGE_HEIGHT, IMAGE_WIDTH, 3)
+
+                        self._notify_controllers_of_update_framedata(frame)
 
             except:
                 print("Unexpected error:", sys.exc_info()[0])
