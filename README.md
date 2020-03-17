@@ -6,6 +6,15 @@
 2. Create a UI to control that server functionality which will be start/stop & record to file.
 
 
+
+## Notes:
+
+Work environment:   
+- Linux(ubuntu 16.04) or MacOS(10.10)  
+- python3.6+  
+- opencv  
+- tkinter  
+
 ====================================  
 **ver 0.0.2**
 
