@@ -1,0 +1,13 @@
+# output dir
+record_data
+
+*.jpg
+*.png
+*.txt
+*.json
+*.diff
+
+# compilation and distribution
+__pycache__
+*.pyc
+*.so
