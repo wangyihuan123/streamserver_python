@@ -108,48 +108,23 @@ class StreamEngine(threading.Thread):
 
     def state_func__idle(self):
         """ Ready for streaming images, but not running capture
-            Checking keyborad input to start
+            Checking input to start from either terminal(keyboard) or gui
         """
-        print("start idle")
+        print("stream engine state -> idle")
+        while True:
+            while not self._command_queue.empty():
+                cmd_obj = self._command_queue.get(block=False)
+                cmd = cmd_obj['cmd']
 
-        # Modify terminal settings to
-        # a)not buffer input characters till RETURN key recieved
-        # b) not echo input characters.
-        # Linux specific code, use msvcrt on Windows
-        try:
-            orig_settings = termios.tcgetattr(sys.stdin)
-            new_settings = list(orig_settings)
-            new_settings[3] = new_settings[3] & ~(termios.ICANON | termios.ECHO)
-            termios.tcsetattr(sys.stdin, termios.TCSADRAIN, new_settings)
-        except termios.error:
-            # Modification not available in particular terminal/terminal emulator we're currently running in.
-            orig_settings = None
+                if cmd == Controller.CMD_START_STREAM:
+                    print("get cmd: start_stream")
+                    return self.state_func__run
 
-        try:
-            try:
-                while True:
-
-                    k = sys.stdin.read(1)[0]  # Blocking call
-
-                    # Mask out all but the equivalent ASCII key code in the low byte
-                    k = ord(k) & 0xFF
-
-                    if k == 32:  # SPACE
-                        print("space -> start to run stream engine")
-                        return self.state_func__run
-
-
-            except KeyboardInterrupt:
-                pass
-
-        finally:
-            if orig_settings is not None:
-                termios.tcsetattr(sys.stdin, termios.TCSADRAIN, orig_settings)
-
+            time.sleep(0.2)
 
 
     def state_func__run(self):
-        print("start stream engine")
+        print("stream engine state -> run")
 
         socket_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         socket_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
