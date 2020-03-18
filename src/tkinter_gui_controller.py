@@ -50,7 +50,11 @@ class TkinterGuiController(ThreadedController):
                                      command=self.stop_stream)
         self.stopButton.grid(row=4, column=1,  padx=200, pady=25,sticky='se')
 
+        self.startButton = ttk.Button(self.content_frame, text="Shutdown", style='B1.TButton',
+                                      command=self.shutdown)
+        self.startButton.grid(row=6, column=0,  padx=5, pady=25, sticky='se')
 
+        self._running = True
 
     def start_recording(self):
         self.signal_start_record()
@@ -68,6 +72,11 @@ class TkinterGuiController(ThreadedController):
         self.signal_stop_stream()
         print("stop stream button pressed")
 
+    def shutdown(self):
+        self.signal_shutdown()
+        print("shutdown button pressed")
+        self._running = False
+
     def notify_frame_data(self, image):
         pass
 
@@ -77,7 +86,7 @@ class TkinterGuiController(ThreadedController):
 
     def main_thread_run(self):
         print("run tkinter gui controller")
-        while True:
+        while self._running:
             self.gui_root.update()
 
     def __del__(self):

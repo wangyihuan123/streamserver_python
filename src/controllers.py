@@ -11,6 +11,7 @@ class Controller(object):
     CMD_STOP_STREAM = 2
     CMD_START_RECORD = 3
     CMD_STOP_RECORD = 4
+    CMD_SHUTDOWN = 5
 
     def __init__(self):
         self._engine = None
@@ -59,6 +60,13 @@ class Controller(object):
         if self._engine is not None:
             try:
                 self._engine.post_command(Controller.CMD_STOP_RECORD)
+            except ReferenceError:
+                self._engine = None
+
+    def signal_shutdown(self):
+        if self._engine is not None:
+            try:
+                self._engine.post_command(Controller.CMD_SHUTDOWN)
             except ReferenceError:
                 self._engine = None
 

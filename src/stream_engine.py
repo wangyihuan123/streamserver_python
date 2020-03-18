@@ -37,6 +37,7 @@ class StreamEngine(threading.Thread):
         self.recording = False
         self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
         self.record_dir = "../record_data/"
+        self._running = True
 
     def __del__(self):
         # Unplug any registered controllers
@@ -113,6 +114,9 @@ class StreamEngine(threading.Thread):
         """
         print("stream engine state -> idle")
         while True:
+            if not self._running:
+                return None
+
             while not self._command_queue.empty():
                 cmd_obj = self._command_queue.get(block=False)
                 cmd = cmd_obj['cmd']
@@ -120,6 +124,11 @@ class StreamEngine(threading.Thread):
                 if cmd == Controller.CMD_START_STREAM:
                     print("get cmd: start_stream")
                     return self.state_func__run
+                elif cmd == Controller.CMD_SHUTDOWN:
+                    print("get cmd: shutdown")
+                    # todo: ensure the video is complete
+                    self._running = False
+                    # self._notify_controllers_of_shutdown()
 
             time.sleep(0.2)
 
@@ -143,54 +152,59 @@ class StreamEngine(threading.Thread):
 
         image_num = 0
 
-        while True:
+        # while True:
+        #     time.sleep(0.05)
+        stream_bytes = b''
 
-            time.sleep(0.05)
-            stream_bytes = b''
+        try:
+            while self._running:
 
-            try:
-                while True:
+                stream_bytes += self.rfile.read(1024)
+                if len(stream_bytes) < IMAGE_SIZE:
+                    continue  # keep receiving until receive a whole image
 
-                    stream_bytes += self.rfile.read(1024)
-                    while len(stream_bytes) >= IMAGE_SIZE:
+                image = np.frombuffer(stream_bytes[:IMAGE_SIZE], dtype="B")
+                stream_bytes = stream_bytes[IMAGE_SIZE:]  # todo: the rest should be moved to another engine
 
-                        image = np.frombuffer(stream_bytes[:IMAGE_SIZE], dtype="B")
-                        stream_bytes = stream_bytes[IMAGE_SIZE:]
+                image_num += 1
+                print(image_num, image.shape, len(stream_bytes))
+                frame = np.frombuffer(
+                    image, dtype=np.uint8).reshape(IMAGE_HEIGHT, IMAGE_WIDTH, 3)
 
-                        image_num += 1
-                        print(image_num, image.shape, len(stream_bytes))
-                        frame = np.frombuffer(
-                            image, dtype=np.uint8).reshape(IMAGE_HEIGHT, IMAGE_WIDTH, 3)
+                self._notify_controllers_of_update_framedata(frame)
 
-                        self._notify_controllers_of_update_framedata(frame)
-
-                        # write the frame to video
-                        if self.recording:
-                            self.out.write(frame)
-                            print("recording")
+                # write the frame to video
+                if self.recording:
+                    self.out.write(frame)  # todo: should be moved to another thread
+                    print("recording")
 
 
-                    while not self._command_queue.empty():
-                        cmd_obj = self._command_queue.get(block=False)
-                        cmd = cmd_obj['cmd']
+                while not self._command_queue.empty():
+                    cmd_obj = self._command_queue.get(block=False)
+                    cmd = cmd_obj['cmd']
 
-                        if cmd == Controller.CMD_START_STREAM:
-                            print("get cmd: start_stream")
-                            print("Stream engine already started")
-                        elif cmd == Controller.CMD_STOP_STREAM:
-                            print("get cmd: stop_stream")
-                            socket_server.close()
-                            return self.state_func__idle
-                        elif cmd == Controller.CMD_START_RECORD:
-                            print("get cmd: start_record")
-                            self.generateRecord()
-                            self.recording = True
-                        elif cmd == Controller.CMD_STOP_RECORD:
-                            print("get cmd: stop_record")
-                            self.recording = False
+                    if cmd == Controller.CMD_START_STREAM:
+                        print("get cmd: start_stream")
+                        print("Stream engine already started")
+                    elif cmd == Controller.CMD_STOP_STREAM:
+                        print("get cmd: stop_stream")
+                        socket_server.close()
+                        return self.state_func__idle
+                    elif cmd == Controller.CMD_START_RECORD:
+                        print("get cmd: start_record")
+                        self.generateRecord()
+                        self.recording = True
+                    elif cmd == Controller.CMD_STOP_RECORD:
+                        print("get cmd: stop_record")
+                        self.recording = False
+                    elif cmd == Controller.CMD_SHUTDOWN:
+                        print("get cmd: shutdown")
+                        # todo: ensure the video is complete
+                        self._running = False
+                        # self._notify_controllers_of_shutdown()
 
-            except:
-                print("Unexpected error:", sys.exc_info()[0])
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
 
 
     def run(self):
