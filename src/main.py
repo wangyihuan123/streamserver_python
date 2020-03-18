@@ -6,22 +6,15 @@ from functools import partial
 from stream_engine import StreamEngine
 from opencv_image_controller import OpencvImageController
 from tkinter_gui_controller import TkinterGuiController
-
-def run_main_loop():
-    try:
-        while True:
-            # currently nothing to do here but spin
-            time.sleep(0.05)
-            continue
-    except KeyboardInterrupt:
-        pass
+from terminal_controller import TerminalController
 
 
 def main():
     engine = StreamEngine()
 
-    # terminal_controller = TerminalController()
-    # engine.register_controller(terminal_controller)
+    terminal_controller = TerminalController()
+    if terminal_controller is not None:
+        engine.register_controller(terminal_controller)
 
     opencv_image_controller = OpencvImageController()
     if opencv_image_controller is not None:
@@ -32,9 +25,6 @@ def main():
         engine.register_controller(tkinter_gui_controller)
 
     engine.start()
-
-    # blocking call
-    # run_main_loop()
 
     # https://stackoverflow.com/questions/14694408/runtimeerror-main-thread-is-not-in-main-loop
     tkinter_gui_controller.main_thread_run()

@@ -10,6 +10,7 @@ class OpencvImageController(ThreadedController):
         super().__init__()
 
         # cv2.namedWindow(WINDOW_NAME)
+        print("init opencv controller")
         self.blank_image = np.zeros((480, 640, 3), np.uint8)
         self._image_to_show = self.blank_image
         self._running = True
@@ -43,6 +44,6 @@ class OpencvImageController(ThreadedController):
                 self.signal_shutdown()
                 self._running = False
 
-def __del__(self):
+    def __del__(self):
         super().__del__()
         cv2.destroyAllWindows()
