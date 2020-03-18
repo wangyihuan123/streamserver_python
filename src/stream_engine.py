@@ -105,6 +105,16 @@ class StreamEngine(threading.Thread):
                 # Shouldn't happen as controllers deregister themselves upon destruction
                 self._controllers.remove(c)
 
+
+    def _notify_controllers_of_shutdown(self):
+
+        for c in self._controllers[:]:
+            try:
+                c.notify_shutdown()
+            except ReferenceError:
+                # Shouldn't happen as controllers deregister themselves upon destruction
+                self._controllers.remove(c)
+
     # ==================================================================================================================
     # State machine state functions
 
@@ -128,7 +138,7 @@ class StreamEngine(threading.Thread):
                     print("get cmd: shutdown")
                     # todo: ensure the video is complete
                     self._running = False
-                    # self._notify_controllers_of_shutdown()
+                    self._notify_controllers_of_shutdown()
 
             time.sleep(0.2)
 
@@ -201,7 +211,7 @@ class StreamEngine(threading.Thread):
                         print("get cmd: shutdown")
                         # todo: ensure the video is complete
                         self._running = False
-                        # self._notify_controllers_of_shutdown()
+                        self._notify_controllers_of_shutdown()
 
         except:
             print("Unexpected error:", sys.exc_info()[0])

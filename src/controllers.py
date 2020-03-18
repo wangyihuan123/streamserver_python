@@ -78,6 +78,10 @@ class Controller(object):
     def notify_frame_data(self, image):
         pass
 
+    # close all the threads
+    def notify_shutdown(self):
+        pass
+
 
 class ThreadedController(Controller):
 
