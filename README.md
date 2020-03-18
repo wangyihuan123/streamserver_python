@@ -8,19 +8,32 @@
 ## Requirements:
 
 1. Work environment:   
-- Linux(ubuntu 16.04+) or MacOS(10.12+)  
+- Linux(ubuntu 16.04+) or MacOS(10.12+), haven'tested on Windows as I don't have one now.  
 - python3.6+  
 - opencv 3.4+
-- tkinter  
+- tkinter(usually builtin with python)  
+- pillow  
 
 2. Install anaconda or env for python environment
 
+```
 conda create --name py3.6 python=3.6
 conda activate py3.6
-conda install -c conda-forge opencv
+conda install opencv
+conda install pillow
+```
 
+3. build for circle-ci 
+```
 cd streamserver_python
 python -m pip install -r requirements.txt
+```
+
+4. build for pytest
+```
+conda install pytest
+
+```
 
 
 ## How to run
