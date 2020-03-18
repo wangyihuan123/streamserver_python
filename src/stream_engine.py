@@ -36,6 +36,7 @@ class StreamEngine(threading.Thread):
         self.session_id = str(uuid.uuid4())
         self.recording = False
         self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        self.record_dir = "../record_data/"
 
     def __del__(self):
         # Unplug any registered controllers
@@ -76,7 +77,7 @@ class StreamEngine(threading.Thread):
         date_time = now.strftime("%d_%b_%H_%M_%S")
         print("date_time", datetime)
         # Define the codec and create VideoWriter object
-        record_name_ = self.session_id + "_video_" + date_time + ".avi"
+        record_name_ = self.record_dir + self.session_id + "_video_" + date_time + ".avi"
         print("video name {}".format(record_name_))
         self.out = cv2.VideoWriter(record_name_, self.fourcc, 20.0, (640, 480))  # 20 frame/per second
         print("generated video")
