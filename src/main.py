@@ -20,6 +20,9 @@ def run_main_loop():
 def main():
     engine = StreamEngine()
 
+    # terminal_controller = TerminalController()
+    # engine.register_controller(terminal_controller)
+
     opencv_image_controller = OpencvImageController()
     if opencv_image_controller is not None:
         engine.register_controller(opencv_image_controller)
@@ -38,6 +41,8 @@ def main():
 
     # Wait until engine (and by extension all registered controllers) have shut down in an orderly manner.
     engine.join(10.0)
+
+    sys.exit(engine.exit_code)
 
 if __name__ == "__main__":
     main()

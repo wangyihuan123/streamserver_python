@@ -12,6 +12,7 @@ from datetime import datetime
 import cv2
 import uuid
 from controllers import Controller
+import traceback
 
 # Socket server configuration
 SERVER_IP = "0.0.0.0"
@@ -215,18 +216,29 @@ class StreamEngine(threading.Thread):
 
         except:
             print("Unexpected error:", sys.exc_info()[0])
+            self.exit_code = 1
 
+        return None
 
     def run(self):
         try:
 
             # Run state machine.
             state_func = self.state_func__idle()
+            self.exit_code = 0
 
             while state_func is not None:
 
                 state_func = state_func()
 
+        except Exception as e:
+            print("ImageCaptureEngine.run() - unexpected exception \n %s \n %s" % (str(e), traceback.format_exc()))
+            self.exit_code = 1
+
+        except:
+            print("ImageCaptureEngine.run() - unexpected exception \n %s" % traceback.format_exc())
+            self.exit_code = 1
         finally:
-            os.kill(os.getpid(), signal.SIGINT)
+            self._notify_controllers_of_shutdown()
+            # os.kill(os.getpid(), signal.SIGINT)
             print("shutting down")
